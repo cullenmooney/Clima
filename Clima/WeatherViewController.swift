@@ -1,5 +1,7 @@
 import UIKit
 import CoreLocation
+import Alamofire
+import SwiftyJSON
 
 
 class WeatherViewController: UIViewController, CLLocationManagerDelegate{
@@ -39,7 +41,24 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
     /***************************************************************/
     
     //Write the getWeatherData method here:
-    
+    func getWeatherData(url: String, parameters: [String: String]) {
+       // formatting our alamofire http request
+        // this method is asynchronous -- happens in the background
+        Alamofire.request(url, method: .get, parameters: parameters).responseJSON {
+            response in
+            if response.result.isSuccess {
+                print("Success got the weather data!")
+                
+                // need to convert the value into json format
+                let weatherJSON : JSON = JSON(response.result.value!)
+                self.updateWeatherData(json: weatherJSON)
+            }
+            else {
+                print("Error \(response.result.error)")
+                self.cityLabel.text = "Connection Issues"
+            }
+        }
+    }
 
     
     
@@ -51,7 +70,10 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
    
     
     //Write the updateWeatherData method here:
-    
+    func updateWeatherData(json : JSON) {
+        let tempResult = json["main"]["temp"]
+        print(tempResult)
+    }
 
     
     
@@ -76,13 +98,18 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
         let location = locations[locations.count - 1]
         if location.horizontalAccuracy > 0 {
             locationManager.stopUpdatingLocation()
+            // so we only get the lat and long once
+            locationManager.delegate = nil
+            
             print("Longitude = \(location.coordinate.longitude), Latitude= \(location.coordinate.latitude)")
             
             let latitude = String(location.coordinate.latitude)
             let longitude = String(location.coordinate.longitude)
             
             // going to use for our api call
-            let params : [String : String] = ["lat" : latitude, "long" : longitude, "appid" : APP_ID]
+            let params : [String : String] = ["lat" : latitude, "lon" : longitude, "appid" : APP_ID]
+            
+            getWeatherData(url: WEATHER_URL, parameters: params)
             
         }
     }
@@ -105,8 +132,6 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
 
     
     //Write the PrepareForSegue Method here
-    
-    
     
     
     
