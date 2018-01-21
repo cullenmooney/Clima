@@ -13,6 +13,9 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
 
     //TODO: Declare instance variables here
     let locationManager = CLLocationManager()
+    
+    // weather data model object
+    let weatherDataModel = WeatherDataModel()
 
     
     //Pre-linked IBOutlets
@@ -59,10 +62,6 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
             }
         }
     }
-
-    
-    
-    
     
     
     //MARK: - JSON Parsing
@@ -71,8 +70,24 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
     
     //Write the updateWeatherData method here:
     func updateWeatherData(json : JSON) {
-        let tempResult = json["main"]["temp"]
-        print(tempResult)
+        // using optional binding if/else instead of force unwrapping the temp result value
+        if let tempResult = json["main"]["temp"].double {
+      
+        // our weather data object that stores all of our weather info
+        weatherDataModel.temperature = Int((tempResult * 9/5) - 459.67)
+        weatherDataModel.city = json["name"].stringValue
+        weatherDataModel.condition = json["weather"][0]["id"].intValue
+        weatherDataModel.weatherIconName = weatherDataModel.updateWeatherIcon(condition: weatherDataModel.condition)
+        
+        // calling our weather ui update function
+        updateUIWithWeatherData()
+            
+        }
+        //code is a lot safer now and our app won't crash
+        else {
+            cityLabel.text = "Weather Unavailable"
+        }
+
     }
 
     
@@ -84,7 +99,11 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
     
     //Write the updateUIWithWeatherData method here:
     
-    
+    func updateUIWithWeatherData() {
+        cityLabel.text = weatherDataModel.city
+        temperatureLabel.text = String(weatherDataModel.temperature)
+        weatherIcon.image = UIImage(named: weatherDataModel.weatherIconName)
+    }
     
     
     
