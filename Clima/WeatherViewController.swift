@@ -38,8 +38,6 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
         
     }
     
-    
-    
     //MARK: - Networking
     /***************************************************************/
     
@@ -63,7 +61,7 @@ class WeatherViewController: UIViewController, CLLocationManagerDelegate{
         }
     }
     
-    
+    // currently works for location weather
     //MARK: - JSON Parsing
     /***************************************************************/
    
